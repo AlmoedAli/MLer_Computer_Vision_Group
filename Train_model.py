@@ -1,23 +1,30 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import GridSearchCV
 import numpy as np
 import joblib
 
+# read file and get data
 file= pd.read_csv('dataset.csv')
-
-# file= loadtxt('dataset.csv', delimiter=',')
 X= file.iloc[:, 0: 63].values
 y= file.iloc[:, 63:].T.values
 y= np.ravel(y)
-# print(y)
+
+#split trainSet and testSet
 X_train_val, X_test, y_train_val, y_test= train_test_split(X, y, test_size= 0.2)
-X_train, X_val, y_train, y_val= train_test_split(X_train_val, y_train_val, test_size= 0.2)
 
+#Tuning hyparameters
+para_Grid= {'n_estimators': [20, 30, 40],
+            'min_samples_split': [2, 3, 5], 'max_depth': [5, 7, 10]}
 
-model= RandomForestClassifier()
-model.fit(X_train_val, y_train_val)
+grid= GridSearchCV(RandomForestClassifier(), para_Grid, refit= True)
 
+grid.fit(X_train_val, y_train_val)
+
+model= grid.best_estimator_
+
+# print(model.get_params)
 # print(type(X))
 # print(X[0])
 # print(model.predict(X_test[0]))
